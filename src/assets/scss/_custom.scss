@@ -1,0 +1,142 @@
+.schedule {
+    margin: 2%;
+    text-align: left;
+
+    .card {
+        border: 1px solid #606060;
+        border-radius: 0rem;
+
+        .card-header {
+            background-color: #2e75b5;
+            color: white;
+            border-radius: 0rem;
+        }
+
+        .card-body {
+            background-color: #f2f2f2;
+        }
+    }
+
+
+
+    .action {
+        display: flex;
+        margin-bottom: 1%;
+        justify-content: space-between;
+
+        .inputNbtn {
+            display: flex;
+            width: 25vw;
+
+            .inputStyle {
+                width: 20vw;
+                margin-right: 2%;
+                border-color: #2e75b5;
+            }
+
+            .btn {
+                background-color: #2e75b5;
+                border-color: #2e75b5;
+            }
+        }
+
+    }
+
+    .scheduleTable {
+        border: 2px solid #92aada;
+        border-radius: 0.25rem;
+        padding: 1%;
+        background-color: white;
+
+        .tableHeader {
+            background-color: #92aada;
+            color: white;
+        }
+
+        .checkGray {
+            fill: #dfdfdf;
+        }
+
+        .checkBlue {
+            fill: #92aada;
+        }
+
+        .xRed {
+            fill: #c00000;
+        }
+
+        .doing {
+            color: #7ca7d0;
+        }
+
+        .done {
+            color: #7cce93;
+        }
+
+        .error {
+            color: #c00000;
+        }
+
+        .scheduled {
+            color: gray;
+        }
+
+        .link {
+            color: #9cbcdb;
+
+            &:hover {
+                color: #66a7e9;
+            }
+        }
+
+        .redoBtn {
+            width: 5vw;
+        }
+
+        .unFinish {
+            background-color: #d9d9d9;
+            border-color: #d9d9d9;
+        }
+
+        .finish {
+            background-color: #c00000;
+            border-color: #c00000;
+        }
+
+        .emptyClass {
+            margin-top: 2.25rem;
+            text-align: center;
+        }
+    }
+
+    .paginationC {
+        margin: 1%;
+        display: flex;
+        justify-content: center;
+
+        
+        .page-link {
+            background-color: unset;
+            border: unset;
+            color: #7c7c7c;
+
+            .pageActive {
+                fill: #007bff;
+            }
+        }
+
+        .page-item.active .page-link {
+            background-color: #007bff;
+            color: white;
+            border-radius: 0.25rem;
+        }
+
+        .page-item.disabled .page-link{
+            color: #bfbfbf;
+
+            .pageActive {
+                fill: #bfbfbf;
+            }
+        }
+    }
+}

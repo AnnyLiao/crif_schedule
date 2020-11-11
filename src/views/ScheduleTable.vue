@@ -1,0 +1,522 @@
+<template>
+  <div class="schedule">
+    <div class="row">
+      <div class="col">
+        <b-card header-tag="header">
+          <template #header>
+            <h5 class="mb-0">資策會-中小企業公開資料擷取排程監控後台</h5>
+          </template>
+          <div class="action">
+            <div class="inputNbtn">
+              <b-form-input
+                id="query"
+                placeholder="請輸入統編直接查詢進度"
+                class="inputStyle"
+              ></b-form-input>
+              <b-button variant="primary">查詢</b-button>
+            </div>
+            <b-button variant="link">新增任務</b-button>
+          </div>
+          <div class="scheduleTable">
+            <b-table
+              id="schedult"
+              :items="items"
+              :fields="fields"
+              thead-class="tableHeader"
+              :sort-by.sync="sortBy"
+              :sort-desc.sync="sortDesc"
+              :per-page="perPage"
+              :current-page="currentPage"
+              show-empty
+              responsive
+            >
+              <template #empty>
+                <div class="emptyClass">
+                  <h5>查無相關排程進度</h5>
+                </div>
+              </template>
+              <template #head(id)>
+                <div class="text-nowrap">委託者ID</div>
+              </template>
+              <template #head(company)>
+                <div class="text-nowrap">企業名稱</div>
+              </template>
+              <template #head(date)>
+                <div class="text-nowrap">委託日</div>
+              </template>
+              <template #head(status)>
+                <div class="text-nowrap">狀態</div>
+              </template>
+              <template v-slot:cell(index)="data">
+                <span>{{ perPage * (currentPage - 1) + data.index + 1 }}</span>
+              </template>
+              <template v-slot:cell(date)="data">
+                <span class="text-nowrap">{{ data.value }}</span>
+              </template>
+              <template v-slot:cell(registration)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'registration_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'registration_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(taxation)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'taxation_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'taxation_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(place)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'place_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'place_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(comment)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'comment_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'comment_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(litigation_sum)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'litigation_sum_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'litigation_sum_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(litigation_text)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'litigation_text_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'litigation_text_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(ai_model)="data">
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkBlue"
+                  v-if="data.value.status == 'F'"
+                ></b-icon>
+                <span v-else-if="data.value.status == 'E'">
+                  <b-icon
+                    icon="x-square-fill"
+                    font-scale="2"
+                    class="xRed"
+                    :id="'ai_model_' + data.item.uuid"
+                  ></b-icon>
+                  <b-popover
+                    :target="'ai_model_' + data.item.uuid"
+                    triggers="hover"
+                    placement="leftbottom"
+                  >
+                    {{ data.value.error }}
+                  </b-popover>
+                </span>
+                <b-icon
+                  icon="check-square-fill"
+                  font-scale="2"
+                  class="checkGray"
+                  v-else
+                ></b-icon>
+              </template>
+              <template v-slot:cell(status)="data">
+                <span v-if="data.value == 'P'" class="doing text-nowrap"
+                  >處理中</span
+                >
+                <span v-else-if="data.value == 'F'" class="done">完成</span>
+                <span v-else-if="data.value == 'E'" class="error">缺漏</span>
+                <span v-else class="scheduled text-nowrap">排程中</span>
+              </template>
+              <template v-slot:cell(link)="data">
+                <a :href="data.value" class="text-wrap link" target="_blank">{{
+                  data.value
+                }}</a>
+              </template>
+              <template v-slot:cell(redoBtn)="data">
+                <b-button
+                  class="redoBtn unFinish"
+                  v-if="data.item.status == 'P' || data.item.status == null"
+                  disabled
+                  >重做</b-button
+                >
+                <b-button
+                  class="redoBtn finish"
+                  v-else
+                  @click="redo(data.item.uuid)"
+                  >重做</b-button
+                >
+              </template>
+            </b-table>
+          </div>
+          <div class="paginationC">
+            <b-pagination-nav
+              v-model="currentPage"
+              :number-of-pages="pages"
+              base-url="#"
+              first-number
+              last-number
+              @input="anotherPage"
+            >
+              <template #prev-text>
+                <b-icon
+                  icon="caret-left-fill"
+                  font-scale="1"
+                  class="pageActive"
+                ></b-icon>
+              </template>
+              <template #next-text>
+                <b-icon
+                  icon="caret-right-fill"
+                  font-scale="1"
+                  class="pageActive"
+                ></b-icon>
+              </template>
+            </b-pagination-nav>
+          </div>
+        </b-card>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import { getAllList } from "@/apis.js";
+export default {
+  name: "scheduleTable",
+  data() {
+    return {
+      sortBy: "index",
+      sortDesc: false,
+      perPage: 5,
+      currentPage: 1,
+      pages: 10,
+      items: [],
+      fields: [
+        {
+          key: "index",
+          label: "No.",
+          sortable: true
+        },
+        {
+          key: "id",
+          label: "委託者ID",
+          sortable: true
+        },
+        {
+          key: "uniform",
+          label: "統編",
+          sortable: true
+        },
+        {
+          key: "company",
+          label: "企業名稱",
+          sortable: true
+        },
+        {
+          key: "date",
+          label: "委託日",
+          sortable: true
+        },
+        {
+          key: "registration",
+          label: "商登",
+          sortable: false
+        },
+        {
+          key: "taxation",
+          label: "財稅",
+          sortable: false
+        },
+        {
+          key: "place",
+          label: "Google Place",
+          sortable: false
+        },
+        {
+          key: "comment",
+          label: "Google Comment",
+          sortable: false
+        },
+        {
+          key: "litigation_sum",
+          label: "訴訟摘要",
+          sortable: false
+        },
+        {
+          key: "litigation_text",
+          label: "訴訟全文",
+          sortable: false
+        },
+        {
+          key: "ai_model",
+          label: "模型",
+          sortable: false
+        },
+        {
+          key: "status",
+          label: "狀態",
+          sortable: true
+        },
+        {
+          key: "link",
+          label: "報告連結",
+          sortable: false
+        },
+        {
+          key: "redoBtn",
+          label: "重做",
+          sortable: false
+        }
+      ]
+    };
+  },
+  methods: {
+    getAlldata() {
+      getAllList({
+        page: this.currentPage,
+        limit: this.perPage
+      })
+        .then(res => {
+          this.pages = Math.ceil(res.data.count / this.perPage);
+          for (let item of res.data.result) {
+            this.items.push({
+              id: item.client_id,
+              uniform: item.uniform_nu,
+              company: item.company_name,
+              date: item.submit_time,
+              registration: {
+                status: item.status_uniform_nu,
+                error: item.error_uniform_nu
+              },
+              taxation: {
+                status: item.status_etax,
+                error: item.error_etax
+              },
+              place: {
+                status: item.status_google_place,
+                error: item.error_google_place
+              },
+              comment: {
+                status: item.status_google_comment,
+                error: item.error_google_comment
+              },
+              litigation_sum: {
+                status: item.status_litigation_summary,
+                error: item.error_litigation_summary
+              },
+              litigation_text: {
+                status: item.status_litigation_text,
+                error: item.error_litigation_text
+              },
+              ai_model: {
+                status: item.status_ai_model,
+                error: item.error_ai_model
+              },
+              status: item.status_final,
+              link: item.report,
+              uuid: item.uuid
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    anotherPage() {
+      getAllList({
+        page: this.currentPage,
+        limit: this.perPage
+      })
+        .then(res => {
+          this.pages = Math.ceil(res.data.count / this.perPage);
+          for (let item of res.data.result) {
+            if (this.items.length < res.data.count) {
+              this.items.push({
+                id: item.client_id,
+                uniform: item.uniform_nu,
+                company: item.company_name,
+                date: item.submit_time,
+                registration: {
+                  status: item.status_uniform_nu,
+                  error: item.error_uniform_nu
+                },
+                taxation: {
+                  status: item.status_etax,
+                  error: item.error_etax
+                },
+                place: {
+                  status: item.status_google_place,
+                  error: item.error_google_place
+                },
+                comment: {
+                  status: item.status_google_comment,
+                  error: item.error_google_comment
+                },
+                litigation_sum: {
+                  status: item.status_litigation_summary,
+                  error: item.error_litigation_summary
+                },
+                litigation_text: {
+                  status: item.status_litigation_text,
+                  error: item.error_litigation_text
+                },
+                ai_model: {
+                  status: item.status_ai_model,
+                  error: item.error_ai_model
+                },
+                status: item.status_final,
+                link: item.report,
+                uuid: item.uuid
+              });
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    redo(uuid) {
+      console.log(uuid);
+    }
+  },
+  mounted() {
+    this.getAlldata();
+  }
+};
+</script>
