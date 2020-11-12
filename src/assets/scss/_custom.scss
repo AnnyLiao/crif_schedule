@@ -1,19 +1,37 @@
+$bule: #2e75b5;
+$deepGray: #606060;
+$cardBk: #f2f2f2;
+$btnGray: #676768;
+$lightBule: #92aada;
+$white: white;
+$textLGray:  #dfdfdf;
+$textRed: #c00000;
+$textBlue: #7ca7d0;
+$textGreen:  #7cce93;
+$textGray: gray;
+$linkColor: #9cbcdb;
+$linkHover: #66a7e9;
+$white2: #d9d9d9;
+$pageLink: #7c7c7c;
+$pageActive: #007bff;
+$white3: #bfbfbf;
+
 .schedule {
     margin: 2%;
     text-align: left;
 
     .card {
-        border: 1px solid #606060;
+        border: 1px solid $deepGray;
         border-radius: 0rem;
 
         .card-header {
-            background-color: #2e75b5;
-            color: white;
+            background-color: $bule;
+            color: $white;
             border-radius: 0rem;
         }
 
         .card-body {
-            background-color: #f2f2f2;
+            background-color: $cardBk;
         }
     }
 
@@ -26,66 +44,71 @@
 
         .inputNbtn {
             display: flex;
-            width: 25vw;
+            width: 32vw;
+            justify-content: space-between;
 
             .inputStyle {
                 width: 20vw;
-                margin-right: 2%;
-                border-color: #2e75b5;
+                border-color: $bule;
             }
 
             .btn {
-                background-color: #2e75b5;
-                border-color: #2e75b5;
+                background-color: $bule;
+                border-color: $bule;
+            }
+
+            .btn-gray {
+                background-color: $btnGray;
+                border-color: $btnGray;
             }
         }
 
     }
 
     .scheduleTable {
-        border: 2px solid #92aada;
+        border: 2px solid $lightBule;
         border-radius: 0.25rem;
         padding: 1%;
-        background-color: white;
+        background-color: $white;
 
         .tableHeader {
-            background-color: #92aada;
-            color: white;
+            background-color: $lightBule;
+            color: $white;
         }
 
         .checkGray {
-            fill: #dfdfdf;
+            fill:$textLGray;
         }
 
         .checkBlue {
-            fill: #92aada;
+            fill: $lightBule;
         }
 
         .xRed {
-            fill: #c00000;
+            fill: $textRed;
         }
 
         .doing {
-            color: #7ca7d0;
+            color: $textBlue;
         }
 
         .done {
-            color: #7cce93;
+            color:$textGreen;
         }
 
         .error {
-            color: #c00000;
+            color: $textRed;
         }
 
         .scheduled {
-            color: gray;
+            color: $textGray;
         }
 
         .link {
-            color: #9cbcdb;
+            color: $linkColor;
 
             &:hover {
-                color: #66a7e9;
+                color: $linkHover;
             }
         }
 
@@ -94,13 +117,13 @@
         }
 
         .unFinish {
-            background-color: #d9d9d9;
-            border-color: #d9d9d9;
+            background-color: $white2;
+            border-color: $white2;
         }
 
         .finish {
-            background-color: #c00000;
-            border-color: #c00000;
+            background-color: $textRed;
+            border-color: $textRed;
         }
 
         .emptyClass {
@@ -114,29 +137,50 @@
         display: flex;
         justify-content: center;
 
-        
+
         .page-link {
             background-color: unset;
             border: unset;
-            color: #7c7c7c;
+            color: $pageLink;
 
             .pageActive {
-                fill: #007bff;
+                fill: $pageActive;
             }
         }
 
         .page-item.active .page-link {
-            background-color: #007bff;
-            color: white;
+            background-color: $pageActive;
+            color: $white;
             border-radius: 0.25rem;
         }
 
-        .page-item.disabled .page-link{
-            color: #bfbfbf;
+        .page-item.disabled .page-link {
+            color: $white3;
 
             .pageActive {
-                fill: #bfbfbf;
+                fill: $white3;
             }
         }
+    }
+    
+}
+
+
+// modal css
+.modal-body {
+    .createForm {
+        display: flex;
+        justify-content: space-between;
+
+        .form-control, .custom-select  {
+            width: 13vw;
+        }
+    }
+}
+
+.modal-footer {
+    .btn {
+        background-color: $bule;
+        border-color: $bule;
     }
 }

@@ -12,14 +12,19 @@
                 id="query"
                 placeholder="請輸入統編直接查詢進度"
                 class="inputStyle"
+                v-model="uniform_nu"
               ></b-form-input>
-              <b-button variant="primary">查詢</b-button>
+              <b-button variant="primary" @click="anotherQuery('q')"
+                >查詢</b-button
+              >
+              <b-button class="btn-gray" @click="getAlldata">全部排程</b-button>
             </div>
-            <b-button variant="link">新增任務</b-button>
+            <b-button variant="link" v-b-modal.create>新增任務</b-button>
           </div>
           <div class="scheduleTable">
             <b-table
-              id="schedult"
+              id="schedule"
+              ref="schedule"
               :items="items"
               :fields="fields"
               thead-class="tableHeader"
@@ -27,6 +32,7 @@
               :sort-desc.sync="sortDesc"
               :per-page="perPage"
               :current-page="currentPage"
+              :busy="isBusy"
               show-empty
               responsive
             >
@@ -292,7 +298,7 @@
               base-url="#"
               first-number
               last-number
-              @input="anotherPage"
+              @input="anotherQuery('p')"
             >
               <template #prev-text>
                 <b-icon
@@ -313,14 +319,46 @@
         </b-card>
       </div>
     </div>
+    <b-modal id="create" size="lg" title="新增任務" ok-only @ok="createTask">
+      <div class="createForm">
+        <b-form-input
+          v-model="uniformNum"
+          placeholder="輸入企業統一編號"
+        ></b-form-input>
+        <b-form-input
+          v-model="companyName"
+          placeholder="輸入企業名稱"
+        ></b-form-input>
+        <b-form-select v-model="selected" :options="options">
+          <template #first>
+            <b-form-select-option :value="null" disabled
+              >-- 企業產業別 --</b-form-select-option
+            >
+          </template>
+        </b-form-select>
+        <b-form-input v-model="clientId" placeholder="委託者ID"></b-form-input>
+      </div>
+      <template #modal-footer="{ ok }">
+        <b-button @click="ok()">
+          新增
+        </b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 <script>
-import { getAllList } from "@/apis.js";
+import { getAllList, getexpList, getScope, redo, submit } from "@/apis.js";
 export default {
   name: "scheduleTable",
   data() {
     return {
+      selected: null,
+      options: [],
+      clientId: "",
+      uniformNum: "",
+      companyName: "",
+      uniform_nu: "",
+      isBusy: false,
       sortBy: "index",
       sortDesc: false,
       perPage: 5,
@@ -408,6 +446,10 @@ export default {
   },
   methods: {
     getAlldata() {
+      this.isBusy = true;
+      this.uniform_nu = "";
+      this.items = [];
+      this.currentPage = 1;
       getAllList({
         page: this.currentPage,
         limit: this.perPage
@@ -453,20 +495,70 @@ export default {
               uuid: item.uuid
             });
           }
+          this.isBusy = false;
         })
         .catch(error => {
           console.log(error);
         });
     },
-    anotherPage() {
-      getAllList({
+    anotherQuery(action) {
+      this.isBusy = true;
+      if (action == "q") {
+        this.items = [];
+        this.currentPage = 1;
+      }
+
+      getexpList({
         page: this.currentPage,
-        limit: this.perPage
+        limit: this.perPage,
+        uni: this.uniform_nu
       })
         .then(res => {
           this.pages = Math.ceil(res.data.count / this.perPage);
-          for (let item of res.data.result) {
-            if (this.items.length < res.data.count) {
+          if (action == "p") {
+            for (let item of res.data.result) {
+              if (this.items.length < res.data.count) {
+                this.items.push({
+                  id: item.client_id,
+                  uniform: item.uniform_nu,
+                  company: item.company_name,
+                  date: item.submit_time,
+                  registration: {
+                    status: item.status_uniform_nu,
+                    error: item.error_uniform_nu
+                  },
+                  taxation: {
+                    status: item.status_etax,
+                    error: item.error_etax
+                  },
+                  place: {
+                    status: item.status_google_place,
+                    error: item.error_google_place
+                  },
+                  comment: {
+                    status: item.status_google_comment,
+                    error: item.error_google_comment
+                  },
+                  litigation_sum: {
+                    status: item.status_litigation_summary,
+                    error: item.error_litigation_summary
+                  },
+                  litigation_text: {
+                    status: item.status_litigation_text,
+                    error: item.error_litigation_text
+                  },
+                  ai_model: {
+                    status: item.status_ai_model,
+                    error: item.error_ai_model
+                  },
+                  status: item.status_final,
+                  link: item.report,
+                  uuid: item.uuid
+                });
+              }
+            }
+          } else if (action == "q") {
+            for (let item of res.data.result) {
               this.items.push({
                 id: item.client_id,
                 uniform: item.uniform_nu,
@@ -506,17 +598,138 @@ export default {
               });
             }
           }
+
+          this.isBusy = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    getIndustry() {
+      getScope()
+        .then(res => {
+          for (let i of res.data.result) {
+            this.options.push({
+              value: i.id,
+              text: i.name
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    createTask() {
+      submit({
+        uni: this.uniformNum,
+        company: this.companyName,
+        clientId: this.clientId,
+        scope: this.selected
+      })
+        .then(res => {
+          this.uniformNum = "";
+          this.companyName = "";
+          this.clientId = "";
+          this.selected = null;
+          this.items.push({
+            id: res.data.result.client_id,
+            uniform: res.data.result.uniform_nu,
+            company: res.data.result.company_name,
+            date: res.data.result.submit_time,
+            registration: {
+              status: res.data.result.status_uniform_nu,
+              error: res.data.result.error_uniform_nu
+            },
+            taxation: {
+              status: res.data.result.status_etax,
+              error: res.data.result.error_etax
+            },
+            place: {
+              status: res.data.result.status_google_place,
+              error: res.data.result.error_google_place
+            },
+            comment: {
+              status: res.data.result.status_google_comment,
+              error: res.data.result.error_google_comment
+            },
+            litigation_sum: {
+              status: res.data.result.status_litigation_summary,
+              error: res.data.result.error_litigation_summary
+            },
+            litigation_text: {
+              status: res.data.result.status_litigation_text,
+              error: res.data.result.error_litigation_text
+            },
+            ai_model: {
+              status: res.data.result.status_ai_model,
+              error: res.data.result.error_ai_model
+            },
+            status: res.data.result.status_final,
+            link: res.data.result.report,
+            uuid: res.data.result.uuid
+          });
         })
         .catch(error => {
           console.log(error);
         });
     },
     redo(uuid) {
-      console.log(uuid);
+      redo({
+        uuid: uuid
+      })
+        .then(res => {
+          if (res.data) {
+            var index = this.items.findIndex(
+              x => x.uuid === res.data.result.uuid
+            );
+            this.items.splice(index, 1);
+            this.items.push({
+              id: res.data.result.client_id,
+              uniform: res.data.result.uniform_nu,
+              company: res.data.result.company_name,
+              date: res.data.result.submit_time,
+              registration: {
+                status: res.data.result.status_uniform_nu,
+                error: res.data.result.error_uniform_nu
+              },
+              taxation: {
+                status: res.data.result.status_etax,
+                error: res.data.result.error_etax
+              },
+              place: {
+                status: res.data.result.status_google_place,
+                error: res.data.result.error_google_place
+              },
+              comment: {
+                status: res.data.result.status_google_comment,
+                error: res.data.result.error_google_comment
+              },
+              litigation_sum: {
+                status: res.data.result.status_litigation_summary,
+                error: res.data.result.error_litigation_summary
+              },
+              litigation_text: {
+                status: res.data.result.status_litigation_text,
+                error: res.data.result.error_litigation_text
+              },
+              ai_model: {
+                status: res.data.result.status_ai_model,
+                error: res.data.result.error_ai_model
+              },
+              status: res.data.result.status_final,
+              link: res.data.result.report,
+              uuid: res.data.result.uuid
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   },
   mounted() {
     this.getAlldata();
+    this.getIndustry();
   }
 };
 </script>
