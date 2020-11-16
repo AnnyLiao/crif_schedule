@@ -167,6 +167,14 @@ $white3: #bfbfbf;
 
 
 // modal css
+.modal-header {
+    background-color: $bule;
+    color: $white;
+
+    .close{
+        color: $white;
+    }
+}
 .modal-body {
     .createForm {
         display: flex;
@@ -175,6 +183,10 @@ $white3: #bfbfbf;
         .form-control, .custom-select  {
             width: 13vw;
         }
+    }
+
+    .spanText {
+        color: red;
     }
 }
 

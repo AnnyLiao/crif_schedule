@@ -292,38 +292,56 @@
             </b-table>
           </div>
           <div class="paginationC">
-            <b-pagination-nav
+            <b-pagination
               v-model="currentPage"
-              :number-of-pages="pages"
-              base-url="#"
+              :total-rows="rows"
+              :per-page="perPage"
+              aria-controls="schedule"
               first-number
               last-number
-              @input="anotherQuery('p')"
             >
               <template #prev-text>
                 <b-icon
                   icon="caret-left-fill"
                   font-scale="1"
                   class="pageActive"
+                  @click="anotherQuery('p')"
                 ></b-icon>
+              </template>
+              <template #page="scoped">
+                <!-- <b-icon
+                  icon="caret-left-fill"
+                  font-scale="1"
+                  class="pageActive"
+                ></b-icon> -->
+                <span @click="anotherQuery('p')">{{ scoped.page }}</span>
               </template>
               <template #next-text>
                 <b-icon
                   icon="caret-right-fill"
                   font-scale="1"
                   class="pageActive"
+                  @click="anotherQuery('p')"
                 ></b-icon>
               </template>
-            </b-pagination-nav>
+            </b-pagination>
           </div>
         </b-card>
       </div>
     </div>
-    <b-modal id="create" size="lg" title="新增任務" ok-only @ok="createTask">
+    <b-modal
+      id="create"
+      ref="create"
+      size="lg"
+      title="新增任務"
+      ok-only
+      centered
+    >
       <div class="createForm">
         <b-form-input
           v-model="uniformNum"
           placeholder="輸入企業統一編號"
+          :state="state"
         ></b-form-input>
         <b-form-input
           v-model="companyName"
@@ -338,10 +356,9 @@
         </b-form-select>
         <b-form-input v-model="clientId" placeholder="委託者ID"></b-form-input>
       </div>
-      <template #modal-footer="{ ok }">
-        <b-button @click="ok()">
-          新增
-        </b-button>
+      <span class="spanText">*統編必填</span>
+      <template #modal-footer>
+        <b-button @click="createTask"> 新增 </b-button>
       </template>
     </b-modal>
   </div>
@@ -352,6 +369,8 @@ export default {
   name: "scheduleTable",
   data() {
     return {
+      state: null,
+      rows: 0,
       selected: null,
       options: [],
       clientId: "",
@@ -369,79 +388,79 @@ export default {
         {
           key: "index",
           label: "No.",
-          sortable: true
+          sortable: true,
         },
         {
           key: "id",
           label: "委託者ID",
-          sortable: true
+          sortable: true,
         },
         {
           key: "uniform",
           label: "統編",
-          sortable: true
+          sortable: true,
         },
         {
           key: "company",
           label: "企業名稱",
-          sortable: true
+          sortable: true,
         },
         {
           key: "date",
           label: "委託日",
-          sortable: true
+          sortable: true,
         },
         {
           key: "registration",
           label: "商登",
-          sortable: false
+          sortable: false,
         },
         {
           key: "taxation",
           label: "財稅",
-          sortable: false
+          sortable: false,
         },
         {
           key: "place",
           label: "Google Place",
-          sortable: false
+          sortable: false,
         },
         {
           key: "comment",
           label: "Google Comment",
-          sortable: false
+          sortable: false,
         },
         {
           key: "litigation_sum",
           label: "訴訟摘要",
-          sortable: false
+          sortable: false,
         },
         {
           key: "litigation_text",
           label: "訴訟全文",
-          sortable: false
+          sortable: false,
         },
         {
           key: "ai_model",
           label: "模型",
-          sortable: false
+          sortable: false,
         },
         {
           key: "status",
           label: "狀態",
-          sortable: true
+          sortable: true,
         },
         {
           key: "link",
           label: "報告連結",
-          sortable: false
+          sortable: false,
         },
         {
           key: "redoBtn",
           label: "重做",
-          sortable: false
-        }
-      ]
+          sortable: false,
+        },
+      ],
     };
   },
   methods: {
@@ -452,10 +471,11 @@ export default {
       this.currentPage = 1;
       getAllList({
         page: this.currentPage,
-        limit: this.perPage
+        limit: this.perPage,
       })
-        .then(res => {
+        .then((res) => {
           this.pages = Math.ceil(res.data.count / this.perPage);
+          this.rows = res.data.count;
           for (let item of res.data.result) {
             this.items.push({
               id: item.client_id,
@@ -464,40 +484,40 @@ export default {
               date: item.submit_time,
               registration: {
                 status: item.status_uniform_nu,
-                error: item.error_uniform_nu
+                error: item.error_uniform_nu,
               },
               taxation: {
                 status: item.status_etax,
-                error: item.error_etax
+                error: item.error_etax,
               },
               place: {
                 status: item.status_google_place,
-                error: item.error_google_place
+                error: item.error_google_place,
               },
               comment: {
                 status: item.status_google_comment,
-                error: item.error_google_comment
+                error: item.error_google_comment,
               },
               litigation_sum: {
                 status: item.status_litigation_summary,
-                error: item.error_litigation_summary
+                error: item.error_litigation_summary,
               },
               litigation_text: {
                 status: item.status_litigation_text,
-                error: item.error_litigation_text
+                error: item.error_litigation_text,
               },
               ai_model: {
                 status: item.status_ai_model,
-                error: item.error_ai_model
+                error: item.error_ai_model,
               },
               status: item.status_final,
               link: item.report,
-              uuid: item.uuid
+              uuid: item.uuid,
             });
           }
           this.isBusy = false;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
@@ -511,9 +531,9 @@ export default {
       getexpList({
         page: this.currentPage,
         limit: this.perPage,
-        uni: this.uniform_nu
+        uni: this.uniform_nu,
       })
-        .then(res => {
+        .then((res) => {
           this.pages = Math.ceil(res.data.count / this.perPage);
           if (action == "p") {
             for (let item of res.data.result) {
@@ -525,39 +545,40 @@ export default {
                   date: item.submit_time,
                   registration: {
                     status: item.status_uniform_nu,
-                    error: item.error_uniform_nu
+                    error: item.error_uniform_nu,
                   },
                   taxation: {
                     status: item.status_etax,
-                    error: item.error_etax
+                    error: item.error_etax,
                   },
                   place: {
                     status: item.status_google_place,
-                    error: item.error_google_place
+                    error: item.error_google_place,
                   },
                   comment: {
                     status: item.status_google_comment,
-                    error: item.error_google_comment
+                    error: item.error_google_comment,
                   },
                   litigation_sum: {
                     status: item.status_litigation_summary,
-                    error: item.error_litigation_summary
+                    error: item.error_litigation_summary,
                   },
                   litigation_text: {
                     status: item.status_litigation_text,
-                    error: item.error_litigation_text
+                    error: item.error_litigation_text,
                   },
                   ai_model: {
                     status: item.status_ai_model,
-                    error: item.error_ai_model
+                    error: item.error_ai_model,
                   },
                   status: item.status_final,
                   link: item.report,
-                  uuid: item.uuid
+                  uuid: item.uuid,
                 });
               }
             }
           } else if (action == "q") {
+            this.rows = res.data.count;
             for (let item of res.data.result) {
               this.items.push({
                 id: item.client_id,
@@ -566,121 +587,127 @@ export default {
                 date: item.submit_time,
                 registration: {
                   status: item.status_uniform_nu,
-                  error: item.error_uniform_nu
+                  error: item.error_uniform_nu,
                 },
                 taxation: {
                   status: item.status_etax,
-                  error: item.error_etax
+                  error: item.error_etax,
                 },
                 place: {
                   status: item.status_google_place,
-                  error: item.error_google_place
+                  error: item.error_google_place,
                 },
                 comment: {
                   status: item.status_google_comment,
-                  error: item.error_google_comment
+                  error: item.error_google_comment,
                 },
                 litigation_sum: {
                   status: item.status_litigation_summary,
-                  error: item.error_litigation_summary
+                  error: item.error_litigation_summary,
                 },
                 litigation_text: {
                   status: item.status_litigation_text,
-                  error: item.error_litigation_text
+                  error: item.error_litigation_text,
                 },
                 ai_model: {
                   status: item.status_ai_model,
-                  error: item.error_ai_model
+                  error: item.error_ai_model,
                 },
                 status: item.status_final,
                 link: item.report,
-                uuid: item.uuid
+                uuid: item.uuid,
               });
             }
           }
 
           this.isBusy = false;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
     getIndustry() {
       getScope()
-        .then(res => {
+        .then((res) => {
           for (let i of res.data.result) {
             this.options.push({
               value: i.id,
-              text: i.name
+              text: i.name,
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
     createTask() {
-      submit({
-        uni: this.uniformNum,
-        company: this.companyName,
-        clientId: this.clientId,
-        scope: this.selected
-      })
-        .then(res => {
-          this.uniformNum = "";
-          this.companyName = "";
-          this.clientId = "";
-          this.selected = null;
-          this.items.push({
-            id: res.data.result.client_id,
-            uniform: res.data.result.uniform_nu,
-            company: res.data.result.company_name,
-            date: res.data.result.submit_time,
-            registration: {
-              status: res.data.result.status_uniform_nu,
-              error: res.data.result.error_uniform_nu
-            },
-            taxation: {
-              status: res.data.result.status_etax,
-              error: res.data.result.error_etax
-            },
-            place: {
-              status: res.data.result.status_google_place,
-              error: res.data.result.error_google_place
-            },
-            comment: {
-              status: res.data.result.status_google_comment,
-              error: res.data.result.error_google_comment
-            },
-            litigation_sum: {
-              status: res.data.result.status_litigation_summary,
-              error: res.data.result.error_litigation_summary
-            },
-            litigation_text: {
-              status: res.data.result.status_litigation_text,
-              error: res.data.result.error_litigation_text
-            },
-            ai_model: {
-              status: res.data.result.status_ai_model,
-              error: res.data.result.error_ai_model
-            },
-            status: res.data.result.status_final,
-            link: res.data.result.report,
-            uuid: res.data.result.uuid
-          });
+      if (this.uniformNum) {
+        this.$refs['create'].hide()
+        submit({
+          uni: this.uniformNum,
+          company: this.companyName,
+          clientId: this.clientId,
+          scope: this.selected,
         })
-        .catch(error => {
-          console.log(error);
-        });
+          .then((res) => {
+            this.uniformNum = "";
+            this.companyName = "";
+            this.clientId = "";
+            this.selected = null;
+            this.state = null;
+            this.items.push({
+              id: res.data.result.client_id,
+              uniform: res.data.result.uniform_nu,
+              company: res.data.result.company_name,
+              date: res.data.result.submit_time,
+              registration: {
+                status: res.data.result.status_uniform_nu,
+                error: res.data.result.error_uniform_nu,
+              },
+              taxation: {
+                status: res.data.result.status_etax,
+                error: res.data.result.error_etax,
+              },
+              place: {
+                status: res.data.result.status_google_place,
+                error: res.data.result.error_google_place,
+              },
+              comment: {
+                status: res.data.result.status_google_comment,
+                error: res.data.result.error_google_comment,
+              },
+              litigation_sum: {
+                status: res.data.result.status_litigation_summary,
+                error: res.data.result.error_litigation_summary,
+              },
+              litigation_text: {
+                status: res.data.result.status_litigation_text,
+                error: res.data.result.error_litigation_text,
+              },
+              ai_model: {
+                status: res.data.result.status_ai_model,
+                error: res.data.result.error_ai_model,
+              },
+              status: res.data.result.status_final,
+              link: res.data.result.report,
+              uuid: res.data.result.uuid,
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }else{
+        this.state = false;
+      }
     },
     redo(uuid) {
       redo({
-        uuid: uuid
+        uuid: uuid,
       })
-        .then(res => {
+        .then((res) => {
           if (res.data) {
             var index = this.items.findIndex(
-              x => x.uuid === res.data.result.uuid
+              (x) => x.uuid === res.data.result.uuid
             );
             this.items.splice(index, 1);
             this.items.push({
@@ -690,46 +717,46 @@ export default {
               date: res.data.result.submit_time,
               registration: {
                 status: res.data.result.status_uniform_nu,
-                error: res.data.result.error_uniform_nu
+                error: res.data.result.error_uniform_nu,
               },
               taxation: {
                 status: res.data.result.status_etax,
-                error: res.data.result.error_etax
+                error: res.data.result.error_etax,
               },
               place: {
                 status: res.data.result.status_google_place,
-                error: res.data.result.error_google_place
+                error: res.data.result.error_google_place,
               },
               comment: {
                 status: res.data.result.status_google_comment,
-                error: res.data.result.error_google_comment
+                error: res.data.result.error_google_comment,
               },
               litigation_sum: {
                 status: res.data.result.status_litigation_summary,
-                error: res.data.result.error_litigation_summary
+                error: res.data.result.error_litigation_summary,
               },
               litigation_text: {
                 status: res.data.result.status_litigation_text,
-                error: res.data.result.error_litigation_text
+                error: res.data.result.error_litigation_text,
               },
               ai_model: {
                 status: res.data.result.status_ai_model,
-                error: res.data.result.error_ai_model
+                error: res.data.result.error_ai_model,
               },
               status: res.data.result.status_final,
               link: res.data.result.report,
-              uuid: res.data.result.uuid
+              uuid: res.data.result.uuid,
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
-    }
+    },
   },
   mounted() {
     this.getAlldata();
     this.getIndustry();
-  }
+  },
 };
 </script>
