@@ -480,46 +480,82 @@ export default {
         })
           .then((res) => {
             vm.pages = Math.ceil(res.data.count / vm.perPage);
-            for (let item of res.data.result) {
-              if (vm.items.length < res.data.count) {
-                vm.items.push({
-                  id: item.client_id,
-                  uniform: item.uniform_nu,
-                  company: item.company_name,
-                  date: item.submit_time,
-                  registration: {
-                    status: item.status_uniform_nu,
-                    error: item.error_uniform_nu,
-                  },
-                  taxation: {
-                    status: item.status_etax,
-                    error: item.error_etax,
-                  },
-                  place: {
-                    status: item.status_google_place,
-                    error: item.error_google_place,
-                  },
-                  comment: {
-                    status: item.status_google_comment,
-                    error: item.error_google_comment,
-                  },
-                  litigation_sum: {
-                    status: item.status_litigation_summary,
-                    error: item.error_litigation_summary,
-                  },
-                  litigation_text: {
-                    status: item.status_litigation_text,
-                    error: item.error_litigation_text,
-                  },
-                  ai_model: {
-                    status: item.status_ai_model,
-                    error: item.error_ai_model,
-                  },
-                  status: item.status_final,
-                  link: item.report,
-                  uuid: item.uuid,
-                });
-              }
+            for (let item in res.data.result) {
+              vm.items[parseInt(item) + vm.perPage * (vm.currentPage - 1)] = {
+                id: res.data.result[item].client_id,
+                uniform: res.data.result[item].uniform_nu,
+                company: res.data.result[item].company_name,
+                date: res.data.result[item].submit_time,
+                registration: {
+                  status: res.data.result[item].status_uniform_nu,
+                  error: res.data.result[item].error_uniform_nu,
+                },
+                taxation: {
+                  status: res.data.result[item].status_etax,
+                  error: res.data.result[item].error_etax,
+                },
+                place: {
+                  status: res.data.result[item].status_google_place,
+                  error: res.data.result[item].error_google_place,
+                },
+                comment: {
+                  status: res.data.result[item].status_google_comment,
+                  error: res.data.result[item].error_google_comment,
+                },
+                litigation_sum: {
+                  status: res.data.result[item].status_litigation_summary,
+                  error: res.data.result[item].error_litigation_summary,
+                },
+                litigation_text: {
+                  status: res.data.result[item].status_litigation_text,
+                  error: res.data.result[item].error_litigation_text,
+                },
+                ai_model: {
+                  status: res.data.result[item].status_ai_model,
+                  error: res.data.result[item].error_ai_model,
+                },
+                status: res.data.result[item].status_final,
+                link: res.data.result[item].report,
+                uuid: res.data.result[item].uuid,
+              };
+
+              // vm.items.push({
+              //   id: item.client_id,
+              //   uniform: item.uniform_nu,
+              //   company: item.company_name,
+              //   date: item.submit_time,
+              //   registration: {
+              //     status: item.status_uniform_nu,
+              //     error: item.error_uniform_nu,
+              //   },
+              //   taxation: {
+              //     status: item.status_etax,
+              //     error: item.error_etax,
+              //   },
+              //   place: {
+              //     status: item.status_google_place,
+              //     error: item.error_google_place,
+              //   },
+              //   comment: {
+              //     status: item.status_google_comment,
+              //     error: item.error_google_comment,
+              //   },
+              //   litigation_sum: {
+              //     status: item.status_litigation_summary,
+              //     error: item.error_litigation_summary,
+              //   },
+              //   litigation_text: {
+              //     status: item.status_litigation_text,
+              //     error: item.error_litigation_text,
+              //   },
+              //   ai_model: {
+              //     status: item.status_ai_model,
+              //     error: item.error_ai_model,
+              //   },
+              //   status: item.status_final,
+              //   link: item.report,
+              //   uuid: item.uuid,
+              // });
             }
             this.isBusy = false;
           })
