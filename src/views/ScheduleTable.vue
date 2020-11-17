@@ -308,13 +308,14 @@
                   @click="anotherQuery('p')"
                 ></b-icon>
               </template>
-              <template #page="scoped">
+              <template #page="{ page }">
                 <!-- <b-icon
                   icon="caret-left-fill"
                   font-scale="1"
                   class="pageActive"
                 ></b-icon> -->
-                <span @click="anotherQuery('p')">{{ scoped.page }}</span>
+                <span @click="anotherQuery('p')">{{ page }}</span>
+                <!-- <span @click="anotherQuery('p')">{{ page }}</span> -->
               </template>
               <template #next-text>
                 <b-icon
@@ -369,6 +370,7 @@ export default {
   name: "scheduleTable",
   data() {
     return {
+      interval: null,
       state: null,
       rows: 0,
       selected: null,
@@ -463,12 +465,75 @@ export default {
       ],
     };
   },
+  beforeDestroy() {
+    clearInterval(this.interval);
+  },
   methods: {
+    Interval() {
+      let vm = this;
+      this.interval = setInterval(() => {
+        vm.isBusy = true;
+        getexpList({
+          page: vm.currentPage,
+          limit: vm.perPage,
+          uni: vm.uniform_nu,
+        })
+          .then((res) => {
+            vm.pages = Math.ceil(res.data.count / vm.perPage);
+            for (let item of res.data.result) {
+              if (vm.items.length < res.data.count) {
+                vm.items.push({
+                  id: item.client_id,
+                  uniform: item.uniform_nu,
+                  company: item.company_name,
+                  date: item.submit_time,
+                  registration: {
+                    status: item.status_uniform_nu,
+                    error: item.error_uniform_nu,
+                  },
+                  taxation: {
+                    status: item.status_etax,
+                    error: item.error_etax,
+                  },
+                  place: {
+                    status: item.status_google_place,
+                    error: item.error_google_place,
+                  },
+                  comment: {
+                    status: item.status_google_comment,
+                    error: item.error_google_comment,
+                  },
+                  litigation_sum: {
+                    status: item.status_litigation_summary,
+                    error: item.error_litigation_summary,
+                  },
+                  litigation_text: {
+                    status: item.status_litigation_text,
+                    error: item.error_litigation_text,
+                  },
+                  ai_model: {
+                    status: item.status_ai_model,
+                    error: item.error_ai_model,
+                  },
+                  status: item.status_final,
+                  link: item.report,
+                  uuid: item.uuid,
+                });
+              }
+            }
+            this.isBusy = false;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }, 10000);
+    },
     getAlldata() {
       this.isBusy = true;
       this.uniform_nu = "";
       this.items = [];
       this.currentPage = 1;
+      clearInterval(this.interval);
       getAllList({
         page: this.currentPage,
         limit: this.perPage,
@@ -520,8 +585,11 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+
+      this.Interval();
     },
     anotherQuery(action) {
+      clearInterval(this.interval);
       this.isBusy = true;
       if (action == "q") {
         this.items = [];
@@ -625,6 +693,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+      this.Interval();
     },
     getIndustry() {
       getScope()
@@ -642,7 +711,7 @@ export default {
     },
     createTask() {
       if (this.uniformNum) {
-        this.$refs['create'].hide()
+        this.$refs["create"].hide();
         submit({
           uni: this.uniformNum,
           company: this.companyName,
@@ -696,7 +765,7 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-      }else{
+      } else {
         this.state = false;
       }
     },
