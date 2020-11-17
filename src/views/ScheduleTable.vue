@@ -28,8 +28,6 @@
               :items="items"
               :fields="fields"
               thead-class="tableHeader"
-              :sort-by.sync="sortBy"
-              :sort-desc.sync="sortDesc"
               :per-page="perPage"
               :current-page="currentPage"
               :busy="isBusy"
@@ -380,8 +378,6 @@ export default {
       companyName: "",
       uniform_nu: "",
       isBusy: false,
-      sortBy: "index",
-      sortDesc: false,
       perPage: 5,
       currentPage: 1,
       pages: 10,
@@ -390,77 +386,77 @@ export default {
         {
           key: "index",
           label: "No.",
-          sortable: true,
+          
         },
         {
           key: "id",
           label: "委託者ID",
-          sortable: true,
+
         },
         {
           key: "uniform",
           label: "統編",
-          sortable: true,
+
         },
         {
           key: "company",
           label: "企業名稱",
-          sortable: true,
+
         },
         {
           key: "date",
           label: "委託日",
-          sortable: true,
+
         },
         {
           key: "registration",
           label: "商登",
-          sortable: false,
+
         },
         {
           key: "taxation",
           label: "財稅",
-          sortable: false,
+
         },
         {
           key: "place",
           label: "Google Place",
-          sortable: false,
+
         },
         {
           key: "comment",
           label: "Google Comment",
-          sortable: false,
+
         },
         {
           key: "litigation_sum",
           label: "訴訟摘要",
-          sortable: false,
+
         },
         {
           key: "litigation_text",
           label: "訴訟全文",
-          sortable: false,
+
         },
         {
           key: "ai_model",
           label: "模型",
-          sortable: false,
+
         },
         {
           key: "status",
           label: "狀態",
-          sortable: true,
+
         },
         {
           key: "link",
           label: "報告連結",
-          sortable: false,
+
         },
         {
           key: "redoBtn",
           label: "重做",
-          sortable: false,
+
         },
       ],
     };
